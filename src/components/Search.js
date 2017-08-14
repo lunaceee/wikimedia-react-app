@@ -12,6 +12,7 @@ class SearchBar extends Component {
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
       this.displayResults = this.displayResults.bind(this);
+      this.clearResults = this.clearResults.bind(this);
     }
 
     //fetch data from API.
@@ -58,10 +59,18 @@ class SearchBar extends Component {
       event.preventDefault();
     }
 
+    clearResults(){
+      this.setState(
+      {
+        searchResults:[]
+      })
+    }
+
     displayResults(results){
       if(!this.state.term){
         return
       }
+      this.clearResults();
       // Loop over results array
       results.forEach(result => {
         const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`);
@@ -86,7 +95,6 @@ class SearchBar extends Component {
         
       });
     }
-
 
 
     render(){
