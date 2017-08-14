@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
+// import SearchResults from './SearchResults.js';
 
 class SearchBar extends Component {
     constructor(props){
       super(props);
       this.state = {
-        term: ''
+        term: '',
+        searchResults: []
       };
 
       this.handleChange = this.handleChange.bind(this);
       this.handleSubmit = this.handleSubmit.bind(this);
+      this.displayResults = this.displayResults.bind(this);
     }
-
-    // var page = 'https://en.wikipedia.org/?curid=';
 
     //fetch data from API.
     fetchData(){
@@ -29,7 +30,6 @@ class SearchBar extends Component {
       var myURL = `https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=5&srsearch=${this.state.term}`;
 
       let myRequest = new Request(myURL, myInit)
-      console.log(myURL);
       
       fetch(myRequest)
       .then((response) => {
@@ -37,16 +37,12 @@ class SearchBar extends Component {
       })
       .then((obj) => {
         var results = obj.query.search;
-        console.log(results);
-        var searchResult = results.map((result) => {
-          return result.snippet;
-        })
+        this.displayResults(results);
       })
     }
 
 
     handleChange(event) {
-      console.log(event);
       this.setState({
         term: event.target.value
       });
@@ -59,7 +55,35 @@ class SearchBar extends Component {
       console.log('A name was submitted: ' + this.state.term);
       this.fetchData();
       event.preventDefault();
+    }
 
+    displayResults(results){
+      if(!this.state.term){
+        return
+      }
+      // Loop over results array
+      results.forEach(result => {
+        const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`);
+
+        let createResults = () => {
+          const searchResults = document.querySelector(".search-results");
+
+          searchResults.insertAdjacentHTML("beforeend",
+            `<div class="resultItem">
+              <h3 class="resultItem-title">
+                <a href="${url}" target="_blank" rel="noreferrer">${result.title}</a>
+              </h3>
+              <span class="resultItem-snippet">${result.snippet}</span><br>
+              <a href="${url}" class="resultItem-link" target="_blank" rel="noreferrer">${url}</a>
+            </div>`
+          );
+        }
+
+        this.setState = {
+          searchResults: createResults()
+        }
+
+      });
     }
 
     render(){
@@ -73,10 +97,8 @@ class SearchBar extends Component {
             <br />
             <input type="submit" value="Submit" />
           </form>
-          <div className="container">
-            <div className="row">
-              {this.state.result}
-            </div>
+          <div className="search-results" onSubmit={this.displayResults}>
+            {this.state.searchResults}
           </div>
         </div>
       );
