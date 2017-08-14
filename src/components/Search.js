@@ -27,7 +27,7 @@ class SearchBar extends Component {
         mode: 'cors'
       };
 
-      var myURL = `https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=5&srsearch=${this.state.term}`;
+      let myURL = `https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=5&srsearch=${this.state.term}`;
 
       let myRequest = new Request(myURL, myInit)
       
@@ -44,7 +44,8 @@ class SearchBar extends Component {
 
     handleChange(event) {
       this.setState({
-        term: event.target.value
+        term: event.target.value,
+        searchResults: []
       });
     }
 
@@ -79,12 +80,14 @@ class SearchBar extends Component {
           );
         }
 
-        this.setState = {
-          searchResults: createResults()
-        }
-
+        this.setState(
+          {searchResults:createResults()}
+        )
+        
       });
     }
+
+
 
     render(){
       return(
@@ -97,9 +100,9 @@ class SearchBar extends Component {
             <br />
             <input type="submit" value="Submit" />
           </form>
-          <div className="search-results" onSubmit={this.displayResults}>
-            {this.state.searchResults}
-          </div>
+          <form className="search-results" onSubmit={this.handleSubmit}>
+              {this.state.searchResults}
+          </form> 
         </div>
       );
     }
