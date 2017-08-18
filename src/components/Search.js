@@ -1,116 +1,104 @@
 import React, { Component } from 'react';
-// import SearchResults from './SearchResults.js';
+
+const SEARCH_REQ_HEADERS = new Headers();
+SEARCH_REQ_HEADERS.append("Accept", "application/json");
+const REQ_INIT = {
+  method: 'POST',
+  headers: SEARCH_REQ_HEADERS,
+  mode: 'cors'
+};
+const WIKI_URL = 'https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=5'
 
 class SearchBar extends Component {
     constructor(props){
       super(props);
+      //Set initial state;
       this.state = {
         term: '',
         searchResults: []
       };
 
+      //Bind methods.
       this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
       this.displayResults = this.displayResults.bind(this);
-      this.clearResults = this.clearResults.bind(this);
     }
 
-    //fetch data from API.
-    fetchData(){
-      // const t = this;
-      
-      let myHeaders = new Headers();
-      myHeaders.append("Accept", "application/json");//customize header.
+    //Fetch data from Wikimedia API.
+    fetchData(searchTerm){
+      let myURL = WIKI_URL + `&srsearch=${searchTerm}`;
 
-      let myInit = {
-        method: 'POST',
-        headers: myHeaders,
-        mode: 'cors'
-      };
-
-      let myURL = `https://en.wikipedia.org/w/api.php?action=query&list=search&prop=info&inprop=url&utf8=&format=json&origin=*&srlimit=5&srsearch=${this.state.term}`;
-
-      let myRequest = new Request(myURL, myInit)
+      let myRequest = new Request(myURL, REQ_INIT)
       
       fetch(myRequest)
       .then((response) => {
         return response.json();
       })
       .then((obj) => {
-        var results = obj.query.search;
+        if (!(obj && obj.query && obj.query.search)) return [];
+        let results = obj.query.search;
         this.displayResults(results);
-      })
+      }).catch(x => {console.error(x)});
     }
 
-
+    //Handle change method.
     handleChange(event) {
       this.setState({
         term: event.target.value,
-        searchResults: []
+        searchResults: this.state.searchResults
       });
+
+      // if more than 3 characters are typed, start searching
+      // Now, if other characters are typed after this, should cancel previous searches
+      // also, as we are searching, perhaps a wait icon would be cool
+      this.fetchData(event.target.value);
     }
 
-    handleSubmit(event) {
-      if(!this.state.term){
-        return
-      }
-      console.log('A name was submitted: ' + this.state.term);
-      this.fetchData();
-      event.preventDefault();
-    }
+    //Handle submit method.
+    // handleSubmit(event) {
+    //   if(!this.state.term){
+    //     return
+    //   }
+    //   console.log('A name was submitted: ' + this.state.term);
+    //   this.fetchData();
+    //   event.preventDefault();
+    // }
 
-    clearResults(){
-      this.setState(
-      {
-        searchResults:[]
-      })
-    }
-
+    //
     displayResults(results){
-      if(!this.state.term){
-        return
+      let newState = {
+        term: this.state.term, 
+        searchResults: results.map(x => {return {title: x.title, snippet: x.snippet}})
       }
-      this.clearResults();
-      // Loop over results array
-      results.forEach(result => {
-        const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`);
-
-        let createResults = () => {
-          const searchResults = document.querySelector(".search-results");
-
-          searchResults.insertAdjacentHTML("beforeend",
-            `<div class="resultItem">
-              <h3 class="resultItem-title">
-                <a href="${url}" target="_blank" rel="noreferrer">${result.title}</a>
-              </h3>
-              <span class="resultItem-snippet">${result.snippet}</span><br>
-              <a href="${url}" class="resultItem-link" target="_blank" rel="noreferrer">${url}</a>
-            </div>`
-          );
-        }
-
-        this.setState(
-          {searchResults:createResults()}
-        )
-        
-      });
+      this.setState(newState)
     }
+
+    
 
 
     render(){
+
       return(
         <div>
-          <form onSubmit={this.handleSubmit}>
+          <form>
             <label>
               What are you looking for? <br />
-              <input type="text" value={this.state.term} onChange={this.handleChange} />
+              <input placeholder="Type in here..." type="text" value={this.state.term} onChange={this.handleChange} />
             </label>
-            <br />
-            <input type="submit" value="Submit" />
           </form>
-          <form className="search-results" onSubmit={this.handleSubmit}>
-              {this.state.searchResults}
-          </form> 
+          {this.state.searchResults.map(result => {
+            const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
+            return (
+              <div className="resultItem">
+                <h3 className="resultItem-title">
+                  <a href="${url}" target="_blank" rel="noreferrer">{result.title}</a>
+                </h3>
+                <span className="resultItem-snippet">{result.snippet}</span><br />
+              <a href="{url}" className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
+              </div>
+            )
+          })}
+
+
         </div>
       );
     }
