@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 const SEARCH_REQ_HEADERS = new Headers();
 SEARCH_REQ_HEADERS.append("Accept", "application/json");
 const REQ_INIT = {
-  method: 'POST',
+  method: 'GET',
   headers: SEARCH_REQ_HEADERS,
   mode: 'cors'
 };
