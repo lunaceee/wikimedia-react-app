@@ -76,15 +76,12 @@ class SearchBar extends Component {
           }
         )
       }
-      this.setState(newState)
-      console.log(this.state.searchResults[0].snippet)
-      
+      this.setState(newState)      
     }
 
 
     renderOneResult(result){
       const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
-        console.log(url);
         return (
           <div className="resultItem">
             <h3 className="resultItem-title">
@@ -98,7 +95,6 @@ class SearchBar extends Component {
 
 
     render(){
-
       return(
         <div>
           <form>
@@ -107,11 +103,14 @@ class SearchBar extends Component {
               <input placeholder="Type in here..." type="text" value={this.state.term} onChange={this.handleChange} />
             </label>
           </form>
+          <div>
             {
               this.state.searchResults.map(result => {
-                this.renderOneResult(result)
+                return this.renderOneResult(result)
               })
             }
+          </div>
+            
         </div>
       );
     }
