@@ -81,9 +81,19 @@ class SearchBar extends Component {
       
     }
 
-    
-    renderOneResult(results){
-      
+
+    renderOneResult(result){
+      const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
+        console.log(url);
+        return (
+          <div className="resultItem">
+            <h3 className="resultItem-title">
+              <a href={url} target="_blank" rel="noreferrer">{result.title}</a>
+            </h3>
+            {result.snippet}<br />
+            <a href={url} className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
+          </div>
+        )
     }
 
 
@@ -99,17 +109,7 @@ class SearchBar extends Component {
           </form>
             {
               this.state.searchResults.map(result => {
-                const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
-                console.log(url);
-                return (
-                  <div className="resultItem">
-                    <h3 className="resultItem-title">
-                      <a href={url} target="_blank" rel="noreferrer">{result.title}</a>
-                    </h3>
-                    {result.snippet}<br />
-                    <a href={url} className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
-                  </div>
-                )
+                this.renderOneResult(result)
               })
             }
         </div>
