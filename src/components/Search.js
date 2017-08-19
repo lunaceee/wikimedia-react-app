@@ -82,6 +82,20 @@ class SearchBar extends Component {
     }
 
 
+    renderOneResult(result){
+      this.state.searchResults.map(result => {
+        const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
+          return (
+            <div className="resultItem">
+              <h3 className="resultItem-title">
+                <a href={url} target="_blank" rel="noreferrer">{result.title}</a>
+              </h3>
+              {result.snippet}<br />
+              <a href={url} className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
+            </div>
+          )
+      })
+    }
 
 
     render(){
@@ -94,21 +108,7 @@ class SearchBar extends Component {
               <input placeholder="Type in here..." type="text" value={this.state.term} onChange={this.handleChange} />
             </label>
           </form>
-            {
-              this.state.searchResults.map(result => {
-                const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
-                console.log(url);
-                return (
-                  <div className="resultItem">
-                    <h3 className="resultItem-title">
-                      <a href="{url}" target="_blank" rel="noreferrer">{result.title}</a>
-                    </h3>
-                    {result.snippet}<br />
-                    <a href="{url}" className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
-                  </div>
-                )
-              })
-            }
+            {this.renderOneResult}
         </div>
       );
     }
