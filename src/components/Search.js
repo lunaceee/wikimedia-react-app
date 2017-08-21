@@ -21,6 +21,7 @@ class SearchBar extends Component {
       //Bind methods.
       this.handleChange = this.handleChange.bind(this);
       this.displayResults = this.displayResults.bind(this);
+      this.handleSubmit = this.handleSubmit.bind(this);
     }
 
     //Fetch data from Wikimedia API.
@@ -34,6 +35,7 @@ class SearchBar extends Component {
         return response.json();
       })
       .then((obj) => {
+        console.log(obj)
         if (!(obj && obj.query && obj.query.search)) return [];
         let results = obj.query.search;
         this.displayResults(results);
@@ -44,32 +46,46 @@ class SearchBar extends Component {
     handleChange(event) {
       this.setState({
         term: event.target.value,
-        searchResults: this.state.searchResults
-      });
 
+      });
       // if more than 3 characters are typed, start searching
       // Now, if other characters are typed after this, should cancel previous searches
       // also, as we are searching, perhaps a wait icon would be cool
-      this.fetchData(event.target.value);
+      // if(event.target.value === ''){
+      //     this.setState({
+      //       term: '',
+      //       searchResults: []
+      //   })
+      // }
+      // else {
+      //   this.fetchData()
+      // }
     }
 
     //Handle submit method.
-    // handleSubmit(event) {
-    //   if(!this.state.term){
-    //     return
-    //   }
-    //   console.log('A name was submitted: ' + this.state.term);
-    //   this.fetchData();
-    //   event.preventDefault();
-    // }
+    handleSubmit(event) {
+      event.preventDefault();
 
-    //
+      if(!this.state.term){
+        return
+      }
+      console.log('A name was submitted: ' + this.state.term);
+      
+      this.setState({
+        searchResults:[]
+      })
+      //put a spinner
+      this.fetchData(this.state.term);
+    }
+
+    //Display results method.
     displayResults(results){
       let newState = {
         term: this.state.term, 
         searchResults: results.map(
-          x => {
+          (x, i) => {
             return {
+              key: i,
               title: x.title, 
               snippet: x.snippet
             }
@@ -83,24 +99,29 @@ class SearchBar extends Component {
     renderOneResult(result){
       const url = encodeURI(`https://en.wikipedia.org/wiki/${result.title}`)
         return (
-          <div className="resultItem">
+          <div className="resultItem" key={result.key}>
             <h3 className="resultItem-title">
               <a href={url} target="_blank" rel="noreferrer">{result.title}</a>
             </h3>
-            {result.snippet}<br />
+            {result.snippet.replace(/<[^>]*>/g, '')}<br />
             <a href={url} className="resultItem-link" target="_blank" rel="noreferrer">{url}</a>
           </div>
         )
     }
 
+    //renderSpinner method
+    renderSpinner(){
+      
+    }
 
     render(){
       return(
         <div>
-          <form>
+          <form onSubmit={this.handleSubmit}>
             <label>
               What are you looking for? <br />
               <input placeholder="Type in here..." type="text" value={this.state.term} onChange={this.handleChange} />
+              <button className="btn btn-default">submit</button>
             </label>
           </form>
           <div>
